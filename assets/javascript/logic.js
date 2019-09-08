@@ -1,31 +1,26 @@
 // SET UP VARIABLES AND INITIALIZE fIREBASE==========================================
-// var config = {
-    // apiKey: "AIzaSyCs3K5zwuOuS0odq89IpPLC7HnXTOcDqgI",
-    // authDomain: "recent-user-with-all-use-e8e76.firebaseapp.com",
-    // databaseURL: "https://recent-user-with-all-use-e8e76.firebaseio.com",
-    // projectId: "recent-user-with-all-use-e8e76",
-    // storageBucket: ""
-    //add a timestamp!!!!!!!
-//   };
+var config = {
+    apiKey: "AIzaSyBkWK0SgbNpG2BO1OKMT1UtUHLUsrpbAQU",
+    authDomain: "unique-name-ead61.firebaseapp.com",
+    databaseURL: "https://unique-name-ead61.firebaseio.com",
+    projectId: "unique-name-ead61",
+    storageBucket: "unique-name-ead61.appspot.com",
+    messagingSenderId: "485517227405",
+    appId: "1:485517227405:web:0a1cc0b35b56900d"
+  };
 
-//   firebase.initializeApp(config);
+  firebase.initializeApp(config);
 
-//   var dataRef = firebase.database();
+  var dataRef = firebase.database();
 
   // Initial Values
   var routeName = "";
   var destination = "";
   var firstTrainConverted = "";
   var frequency = 0;
-  var convertedNextArrival = ""; //calculate
-  var minutesToTrain = 0; //calculate
-
-//Initial Function fills in table on page load
-$(function(){
-    //initially load from the database and display in the table
-    //function displayDataToTable
-    //
-});
+  var convertedNextArrival = ""; 
+  var minutesToTrain = 0; 
+  var currTime;
 
 // MAIN FUNCTIONS ==============================================================
 function getTableInput(){
@@ -34,93 +29,66 @@ routeName = $("#route-name-input").val().trim();
 destination = $("#destination-input").val().trim();
 frequency = $("#train-frequency-input").val().trim();
 var firstTrain = $("#first-train-time-input").val().trim();
-
 firstTrainConverted = moment(firstTrain, "HH:mm").subtract(1, "years");
-// console.log("first train converted: " + firstTrainConverted);
-
-var currTime = moment();
-console.log("current time: " + moment(currTime).format("hh:mm"));
-
+currTime = moment();
 var diffTime = moment().diff(firstTrainConverted, "minutes");
-console.log("difftime, now-last train :" + diffTime.toString()); 
-
-console.log("frequency: " + frequency)
-
 var remainder = diffTime % frequency;
-console.log("remainder, diff % frequency: " + remainder);
-
 minutesToTrain = frequency - remainder;
-console.log("minutes to train, frequency - remainder: " + minutesToTrain);
 var nextArrival = moment().add(minutesToTrain, "minutes");
 convertedNextArrival = nextArrival.format("LT");
-console.log("next train at: " + convertedNextArrival);
 };
 
-//function getFirebaseData(){}
-
-function displayDataToTable(){
-    var nameTr = $("<tr>");
-    var destinTr = $("<tr>");
-    var freqTr = $("<tr>");
-    var nextTr = $("<tr>");
-    var minAwayTr = $("<tr>");
-    var nameTd = $("<td>");
-    nameTd.html(routeName);
-    var destinTd = $("<td>");
-    destinTd.html(destination);
-    var freqTd = $("<td>");
-    freqTd.html(frequency);
-    var nextTd = $("<td>");
-    nextTd.html(convertedNextArrival);
-    var minAwayTd = $("<td>");
-    minAwayTd.html(minutesToTrain)
-
-    nameTr.append(nameTd);
-    destinTr.append(destinTd);
-    freqTr.append(freqTd);
-    nextTr.append(nextTd);
-    minAwayTr.append(minAwayTd);
-
-    $("#table-body").append(nameTr)
-    $("#table-body").append(destinTr)
-    $("#table-body").append(freqTr)
-    $("#table-body").append(nextTr)
-    $("#table-body").append(minAwayTr);
-}
- 
-//name -tr-td
-//dest tr-td
-//freq tr-td
-//next tr-td
-//minAway tr-td
-
-// all appended to tbody
-// tbody to "#thead"
-
-
+//on submit click, grab form input, and push it to the database
 $(document).on("click", ".btn", function(){
     event.preventDefault();
-    console.log("hello");
     getTableInput();
-    // routeName = $("#route-name-input").val().trim();
-    // destination = $("#destination-input").val().trim();
-    // firstTrain = $("#first-train-time-input").val().trim();
-    // frequency = $("#train-frequency-input").val().trim();
-    // console.log(routeName);
-    // console.log(destination);
-    // console.log(firstTrain);
-    // console.log(frequency);
-    // console.log(nextArrival);
+    // Code for the push to database
+    dataRef.ref().push({
+        "route": routeName,
+        "destination": destination,
+        "frequency": frequency,
+        "nextArrival": convertedNextArrival,
+        "minutesAway": minutesToTrain,
+        "dateAdded": firebase.database.ServerValue.TIMESTAMP
+      });
+    //clear the values in the form input fields
     $("#route-name-input").val("");
     $("#destination-input").val("");
     $("#first-train-time-input").val("");
-    $("#train-frequency-input").val("");
+    $("#train-frequency-input").val("");  
+});
 
-    //displayDataToTable()
-    //render function takes in getInput values
-    //renders to the table
-    //pushes to database
-})
+//firebase watcher and initial loader
+//once firebase has a new child, render the database child to the table
+dataRef.ref().on("child_added", function(childSnapshot){
+    // console.log(childSnapshot.val().route);
+    // console.log(childSnapshot.val().destination);
+    // console.log(childSnapshot.val().frequency);
+    // console.log(childSnapshot.val().nextArrival);
+    // console.log(childSnapshot.val().minutesAway);
+//add data to table
+    var newTr = $("<tr>");
+    var nameTd = $("<td>");
+    nameTd.text(childSnapshot.val().route);
+    var destinTd = $("<td>");
+    destinTd.text(childSnapshot.val().destination);
+    var freqTd = $("<td>");
+    freqTd.text(childSnapshot.val().frequency);
+    var nextTd = $("<td>");
+    nextTd.text(childSnapshot.val().nextArrival);
+    var minAwayTd = $("<td>");
+    minAwayTd.text(childSnapshot.val().minutesAway)
+    newTr.append(nameTd);
+    newTr.append(destinTd);
+    newTr.append(freqTd);
+    newTr.append(nextTd);
+    newTr.append(minAwayTd);
+    $("#table-body").append(newTr)
+// //handles the errors
+}, function(errorObject) {
+    console.log("Errors handled: " + errorObject.code);
+});
+
 
 
 //edge cases: if user enters "min"
