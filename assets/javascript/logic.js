@@ -1,4 +1,4 @@
-// SET UP VARIABLES AND INITIALIZE fIREBASE==========================================
+//INITIALIZE fIREBASE==========================================
 var config = {
     apiKey: "AIzaSyBkWK0SgbNpG2BO1OKMT1UtUHLUsrpbAQU",
     authDomain: "unique-name-ead61.firebaseapp.com",
@@ -13,7 +13,7 @@ var config = {
 
   var dataRef = firebase.database();
 
-  // Initial Values
+  // SET UP VARIABLES ========================================================= 
   var routeName = "";
   var destination = "";
   var firstTrainConverted = "";
@@ -21,6 +21,7 @@ var config = {
   var convertedNextArrival = ""; 
   var minutesToTrain = 0; 
   var currTime;
+  var firstTrain;
 
 // MAIN FUNCTIONS ==============================================================
 function getTableInput(){
@@ -28,14 +29,15 @@ function getTableInput(){
 routeName = $("#route-name-input").val().trim();
 destination = $("#destination-input").val().trim();
 frequency = $("#train-frequency-input").val().trim();
-var firstTrain = $("#first-train-time-input").val().trim();
-firstTrainConverted = moment(firstTrain, "HH:mm").subtract(1, "years");
-currTime = moment();
-var diffTime = moment().diff(firstTrainConverted, "minutes");
-var remainder = diffTime % frequency;
-minutesToTrain = frequency - remainder;
-var nextArrival = moment().add(minutesToTrain, "minutes");
-convertedNextArrival = nextArrival.format("LT");
+firstTrain = $("#first-train-time-input").val().trim();
+//deal with edge cases
+//edge cases: 
+//if user enters "min"
+//if not a number entered
+//if not entered with military time
+//not filling out each input
+//make route and destination uppercase
+//commas in minutes
 };
 
 //on submit click, grab form input, and push it to the database
@@ -47,8 +49,9 @@ $(document).on("click", ".btn", function(){
         "route": routeName,
         "destination": destination,
         "frequency": frequency,
-        "nextArrival": convertedNextArrival,
-        "minutesAway": minutesToTrain,
+        "lastArrival": firstTrain,
+        // "nextArrival": convertedNextArrival,
+        // "minutesAway": minutesToTrain,
         "dateAdded": firebase.database.ServerValue.TIMESTAMP
       });
     //clear the values in the form input fields
@@ -61,38 +64,31 @@ $(document).on("click", ".btn", function(){
 //firebase watcher and initial loader
 //once firebase has a new child, render the database child to the table
 dataRef.ref().on("child_added", function(childSnapshot){
-    // console.log(childSnapshot.val().route);
-    // console.log(childSnapshot.val().destination);
-    // console.log(childSnapshot.val().frequency);
-    // console.log(childSnapshot.val().nextArrival);
-    // console.log(childSnapshot.val().minutesAway);
-//add data to table
+    //math==========================================================================
+    //subtract one year from the first train time 
+    firstTrainConverted = moment(childSnapshot.val().lastArrival, "HH:mm").subtract(1, "years");
+    currTime = moment();
+    var diffTime = moment().diff(firstTrainConverted, "minutes");
+    frequency = childSnapshot.val().frequency;
+    var remainder = diffTime % frequency;
+    minutesToTrain = frequency - remainder;
+    var nextArrival = moment().add(minutesToTrain, "minutes");
+    convertedNextArrival = nextArrival.format("LT");
+    //add data to table
     var newTr = $("<tr>");
     var nameTd = $("<td>");
     nameTd.text(childSnapshot.val().route);
     var destinTd = $("<td>");
     destinTd.text(childSnapshot.val().destination);
     var freqTd = $("<td>");
-    freqTd.text(childSnapshot.val().frequency);
+    freqTd.text(frequency);
     var nextTd = $("<td>");
-    nextTd.text(childSnapshot.val().nextArrival);
+    nextTd.text(convertedNextArrival);
     var minAwayTd = $("<td>");
-    minAwayTd.text(childSnapshot.val().minutesAway)
-    newTr.append(nameTd);
-    newTr.append(destinTd);
-    newTr.append(freqTd);
-    newTr.append(nextTd);
-    newTr.append(minAwayTd);
+    minAwayTd.text(minutesToTrain);
+    newTr.append(nameTd).append(destinTd).append(freqTd).append(nextTd).append(minAwayTd);
     $("#table-body").append(newTr)
 // //handles the errors
 }, function(errorObject) {
     console.log("Errors handled: " + errorObject.code);
 });
-
-
-
-//edge cases: if user enters "min"
-//if not a number entered
-//if not entered with military time
-//not filling out each input
-//make route and destination uppercase
