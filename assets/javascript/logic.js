@@ -7,21 +7,21 @@ var config = {
     storageBucket: "unique-name-ead61.appspot.com",
     messagingSenderId: "485517227405",
     appId: "1:485517227405:web:0a1cc0b35b56900d"
-  };
+};
 
-  firebase.initializeApp(config);
+firebase.initializeApp(config);
 
-  var dataRef = firebase.database();
+var dataRef = firebase.database();
 
-  // SET UP VARIABLES ========================================================= 
-  var routeName = "";
-  var destination = "";
-  var firstTrainConverted = "";
-  var frequency = 0;
-  var convertedNextArrival = ""; 
-  var minutesToTrain = 0; 
-  var currTime;
-  var firstTrain;
+// SET UP VARIABLES ========================================================= 
+var routeName = "";
+var destination = "";
+var firstTrainConverted = "";
+var frequency = 0;
+var convertedNextArrival = ""; 
+var minutesToTrain = 0; 
+var currTime = "";
+var firstTrain = "";
 
 // MAIN FUNCTIONS ==============================================================
 function getTableInput(){
@@ -30,35 +30,65 @@ routeName = $("#route-name-input").val().trim();
 destination = $("#destination-input").val().trim();
 frequency = $("#train-frequency-input").val().trim();
 firstTrain = $("#first-train-time-input").val().trim();
-//deal with edge cases
-//edge cases: 
-//if user enters "min"
-//if not a number entered
-//if not entered with military time
-//not filling out each input
+
 //make route and destination uppercase
-//commas in minutes
+routeName = routeName.charAt(0).toUpperCase() + routeName.substring(1);
+destination = destination.charAt(0).toUpperCase() + destination.substring(1);
 };
 
+function dealWithEdgeCases(){
+    //Edge Case 1: If user does not filling out each input
+    if(routeName.length == 0 || destination.length == 0 || firstTrain.length == 0 || frequency.length == 0){
+        alert("Please complete in all fields");
+        return false;
+    }
+    //Edge Case 2: If user adds comma in minutes
+    var commaIndex = frequency.indexOf(",");
+    if (frequency.includes(",")){
+        //  frequency = frequency.slice(commaIndex, 1);
+        frequency = frequency.slice(0, commaIndex) + frequency.slice(commaIndex + 1, frequency.length);
+        console.log(frequency);
+    }
+    //Edge Case 3: If user enters units in frequency
+    if(frequency.includes("m")){
+        var indx = frequency.indexOf("m");
+        frequency = frequency.slice(0, indx);
+        frequency = frequency.trim();
+    }
+    //Edge Case 4: If there is a typo in the frequency input and no number was inputted
+    if(isNaN(frequency) && frequency !=="m"){
+        alert("Please enter a number.");
+        return false;
+    }
+    //Edge Case 5: If first train is not entered in military time format (cannot decipher issues with times between 10:00 and 12:59)
+    //Edge Case 6: If last train time entered exceeds 23:59
+    var indexOfcolon = firstTrain.indexOf(":");
+    var firstTwoDigits = firstTrain.slice(0, 2);
+    var lastTwoDigits = firstTrain.slice(3, 5);
+    if(indexOfcolon !== 2 || firstTrain.length != 5 || firstTwoDigits > 23 || lastTwoDigits > 59){
+        alert("Enter in military time HH:MM");
+        return false;
+    }
+    //Edge Case 7: If frequency is < 1min.
+    if(frequency < 1){
+        alert("Train frequency must be one minute or more");
+        return false;
+    }
+};
 //on submit click, grab form input, and push it to the database
 $(document).on("click", ".btn", function(){
     event.preventDefault();
     getTableInput();
-    // Code for the push to database
+    dealWithEdgeCases();
+    //Push to database
     dataRef.ref().push({
         "route": routeName,
         "destination": destination,
         "frequency": frequency,
         "lastArrival": firstTrain,
-        // "nextArrival": convertedNextArrival,
-        // "minutesAway": minutesToTrain,
         "dateAdded": firebase.database.ServerValue.TIMESTAMP
       });
-    //clear the values in the form input fields
-    $("#route-name-input").val("");
-    $("#destination-input").val("");
-    $("#first-train-time-input").val("");
-    $("#train-frequency-input").val("");  
+    clearFields();
 });
 
 //firebase watcher and initial loader
@@ -76,19 +106,26 @@ dataRef.ref().on("child_added", function(childSnapshot){
     convertedNextArrival = nextArrival.format("LT");
     //add data to table
     var newTr = $("<tr>");
-    var nameTd = $("<td>");
-    nameTd.text(childSnapshot.val().route);
-    var destinTd = $("<td>");
-    destinTd.text(childSnapshot.val().destination);
-    var freqTd = $("<td>");
-    freqTd.text(frequency);
-    var nextTd = $("<td>");
-    nextTd.text(convertedNextArrival);
-    var minAwayTd = $("<td>");
-    minAwayTd.text(minutesToTrain);
+    var nameTd = $("<td>").text(childSnapshot.val().route);
+    var destinTd = $("<td>").text(childSnapshot.val().destination);
+    var freqTd = $("<td>").text(frequency);
+    var nextTd = $("<td>").text(convertedNextArrival);
+    var minAwayTd = $("<td>").text(minutesToTrain);
     newTr.append(nameTd).append(destinTd).append(freqTd).append(nextTd).append(minAwayTd);
     $("#table-body").append(newTr)
 // //handles the errors
 }, function(errorObject) {
     console.log("Errors handled: " + errorObject.code);
 });
+
+//reload timetable every two minutes for current information
+setTimeout(function(){
+    location.reload();
+},1.2e5);
+
+function clearFields(){
+    $("#route-name-input").val("");
+    $("#destination-input").val("");
+    $("#first-train-time-input").val("");
+    $("#train-frequency-input").val("");
+};

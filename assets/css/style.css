@@ -1,5 +1,4 @@
 body {
-    /* background-image: url("../images/train-drawing.jpg");  */
     background-color: rgb(112, 112, 112); 
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -14,16 +13,12 @@ body {
 .jumbotron {
     color: white;
     background-color:  black;
-    /* background-image: url("../images/cropped-old-train-locomotive-black-heat-transfer-on-a-grey-background.jpg");  */
     background-repeat: no-repeat;
-    /* background-attachment: fixed; */
     background-size: auto;
-    /* background-position-y: -300px; */
     overflow: hidden;
     padding: 0px;
     margin-top: 30px;
     border: 4px solid black;
-
 }
 
 #train-left {
