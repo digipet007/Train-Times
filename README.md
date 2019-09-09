@@ -1,13 +1,12 @@
 # Train-Times
-# Star-Trek-Battle-Arena
 
-This is a Star Trek battle arena game, an interactive game to be played in your web browser. Choose your hero from a list of Worf, Picard, Spock, and Gorn.  Then, choose your opposing enemy to battle from the remaining characters. Each character in the game has 3 attributes: `Health Points`, `Attack Power` and `Counter Attack Power`. Open the console to view each character's stats. Each time your character attacks, their `Attack Power` permanently increases by 6 points for the duration of the game. Win the game by cleverly selecting the proper order of opponents to attack and defeating all opponents.  
+This is an application that calculates and displays current train times and minutes to arrival.  It uses Javascript, jQuery, Moment.js, and Google Firebase.
 
 ## Getting Started
 
-To play, download from Github (https://github.com/digipet007/unit-4-game) and open the index.html file in you web browser. This is all you need to get the project up and running on your local machine.
+To view the application, download from Github (https://github.com/digipet007/Train-Times) and open the index.html file in you web browser. This is all you need to get the project up and running on your local machine.
 
-or simply play online: (https://digipet007.github.io/unit-4-game/)
+or simply view online: (https://digipet007.github.io/Train-Times/)
 
 ### Prerequisites
 
@@ -15,30 +14,20 @@ This game will function in most browsers for desktop or laptop computers.
 
 ## Built With
 
-*HTML
-*CSS
-*uses Javascript and jQuery to dynamically update the HTML
+* HTML
+* CSS
+* Moment.js
+* uses Javascript and jQuery to dynamically update the HTML
+* Bootstrap
+* Google Firebase
 
-## Contributing
+## Author
 
-Pull requests welcome!
-
-## Authors
-
-* **Sarah Arnold** --view my portfolio and bio: (https://digipet007.github.io/Bootstrap-Portfolio/)
-
-
-## License
-
-Copyright 2019 SARAH ARNOLD
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+* **Sarah Arnold** --view my portfolio and bio: (https://digipet007.github.io/Sarahs-Portfolio/)
 
 ## Acknowledgments
 
-* This app utilizes the Myerweb CSS reset (https://meyerweb.com/eric/tools/css/reset/) 
+* This app utilizes the Bootstrap framework (https://getbootstrap.com/)
+* Interfaces with Google Firebase (https://firebase.google.com)
+* Uses Moment.js library (https://momentjs.com)
 * Created for UW Full Stack Flex Certificate program, according to program specifications.

@@ -30,16 +30,15 @@ routeName = $("#route-name-input").val().trim();
 destination = $("#destination-input").val().trim();
 frequency = $("#train-frequency-input").val().trim();
 firstTrain = $("#first-train-time-input").val().trim();
-
 //make route and destination uppercase
 routeName = routeName.charAt(0).toUpperCase() + routeName.substring(1);
 destination = destination.charAt(0).toUpperCase() + destination.substring(1);
 };
 
 function dealWithEdgeCases(){
-    //Edge Case 1: If user does not filling out each input
+    //Edge Case 1: If user does not fill out each input
     if(routeName.length == 0 || destination.length == 0 || firstTrain.length == 0 || frequency.length == 0){
-        alert("Please complete in all fields");
+        alert("Please complete all fields");
         return false;
     }
     //Edge Case 2: If user adds comma in minutes
@@ -47,7 +46,6 @@ function dealWithEdgeCases(){
     if (frequency.includes(",")){
         //  frequency = frequency.slice(commaIndex, 1);
         frequency = frequency.slice(0, commaIndex) + frequency.slice(commaIndex + 1, frequency.length);
-        console.log(frequency);
     }
     //Edge Case 3: If user enters units in frequency
     if(frequency.includes("m")){
@@ -71,7 +69,7 @@ function dealWithEdgeCases(){
     }
     //Edge Case 7: If frequency is < 1min.
     if(frequency < 1){
-        alert("Train frequency must be one minute or more");
+        alert("Train frequency must be one minute or greater");
         return false;
     }
 };
@@ -112,7 +110,7 @@ dataRef.ref().on("child_added", function(childSnapshot){
     var nextTd = $("<td>").text(convertedNextArrival);
     var minAwayTd = $("<td>").text(minutesToTrain);
     newTr.append(nameTd).append(destinTd).append(freqTd).append(nextTd).append(minAwayTd);
-    $("#table-body").append(newTr)
+    $("#table-body").append(newTr);
 // //handles the errors
 }, function(errorObject) {
     console.log("Errors handled: " + errorObject.code);
