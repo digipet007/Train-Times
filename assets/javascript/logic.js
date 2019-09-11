@@ -24,6 +24,22 @@ var currTime = "";
 var firstTrain = "";
 
 // MAIN FUNCTIONS ==============================================================
+//on submit click, grab form input, and push it to the database
+$(document).on("click", ".btn", function(){
+    event.preventDefault();
+    getTableInput();
+    dealWithEdgeCases();
+    //Push to database
+    dataRef.ref().push({
+        "route": routeName,
+        "destination": destination,
+        "frequency": frequency,
+        "lastArrival": firstTrain,
+        "dateAdded": firebase.database.ServerValue.TIMESTAMP
+      });
+    clearFields();
+});
+
 function getTableInput(){
 //take in info from table and calculate nextArrival and minutesAway
 routeName = $("#route-name-input").val().trim();
@@ -73,27 +89,12 @@ function dealWithEdgeCases(){
         return false;
     }
 };
-//on submit click, grab form input, and push it to the database
-$(document).on("click", ".btn", function(){
-    event.preventDefault();
-    getTableInput();
-    dealWithEdgeCases();
-    //Push to database
-    dataRef.ref().push({
-        "route": routeName,
-        "destination": destination,
-        "frequency": frequency,
-        "lastArrival": firstTrain,
-        "dateAdded": firebase.database.ServerValue.TIMESTAMP
-      });
-    clearFields();
-});
 
 //firebase watcher and initial loader
 //once firebase has a new child, render the database child to the table
 dataRef.ref().on("child_added", function(childSnapshot){
     //math==========================================================================
-    //subtract one year from the first train time 
+    //subtract one year from the first train time in case last train is ahead of current time 
     firstTrainConverted = moment(childSnapshot.val().lastArrival, "HH:mm").subtract(1, "years");
     currTime = moment();
     var diffTime = moment().diff(firstTrainConverted, "minutes");
@@ -111,7 +112,7 @@ dataRef.ref().on("child_added", function(childSnapshot){
     var minAwayTd = $("<td>").text(minutesToTrain);
     newTr.append(nameTd).append(destinTd).append(freqTd).append(nextTd).append(minAwayTd);
     $("#table-body").append(newTr);
-// //handles the errors
+//handles the errors
 }, function(errorObject) {
     console.log("Errors handled: " + errorObject.code);
 });
