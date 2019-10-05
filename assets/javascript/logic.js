@@ -24,12 +24,19 @@ var currTime = "";
 var firstTrain = "";
 
 // MAIN FUNCTIONS ==============================================================
-//on submit click, grab form input, and push it to the database
+
+//on submit button click, grab form input, and push it to the database
 $(document).on("click", ".btn", function(){
     event.preventDefault();
     getTableInput();
-    dealWithEdgeCases();
+
+    var isValid = checkValiditiy();
+
     //Push to database
+    if (!isValid){
+        return;
+    } 
+    
     dataRef.ref().push({
         "route": routeName,
         "destination": destination,
@@ -51,7 +58,7 @@ routeName = routeName.charAt(0).toUpperCase() + routeName.substring(1);
 destination = destination.charAt(0).toUpperCase() + destination.substring(1);
 };
 
-function dealWithEdgeCases(){
+function checkValiditiy(){
     //Edge Case 1: If user does not fill out each input
     if(routeName.length == 0 || destination.length == 0 || firstTrain.length == 0 || frequency.length == 0){
         alert("Please complete all fields");
@@ -88,6 +95,8 @@ function dealWithEdgeCases(){
         alert("Train frequency must be one minute or greater");
         return false;
     }
+
+    return true;
 };
 
 //firebase watcher and initial loader
